@@ -1,0 +1,20 @@
+package com.agendaemail.model;
+
+public enum TitulosPantallas {
+    TITULOLOGIN("LOGIN AGENDA"),
+    TITULOLOGNUEVACUENTAAGENDA("LOGIN-NUEVA CUENTA AGENDA"),
+    TITULOBAJACUENTAS("BAJA DE CUENTA"),
+    TITULOAGENDA("AGENDA DE CUENTAS"),
+    TITULOMODIFICACUENTA("MODIFICAR DATOS CUENTAS"),
+    TITULOCONSULTACUENTAS("CONSULTA DE CUENTAS"),
+    TITULONUEVACUENTA("NUEVA CUENTA"),
+    TITULORECARGA("RECARGAS"),
+    TITULODEPTRANS("DEPOSITOS/TRANSFERENCIAS"),
+    TITULOERROR("ERROR-AGENDA");
+
+    public final String descripcion;
+
+    private TitulosPantallas(String descripcion) {
+        this.descripcion = descripcion;
+    }
+}
