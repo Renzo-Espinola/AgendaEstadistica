@@ -27,16 +27,20 @@ public class ModificarCuenta {
 
         if (opcionSeleccion(agenda, opcion))
             JOptionPane.showMessageDialog(null, "EL REGISTRO FUE MODIFICADO");
-        else
-            JOptionPane.showMessageDialog(null, "OCURRIO UN ERROR AL MODIFICAR");
+
         pantallaPrincipalAgenda.pantallaSubMenuMovconsultas(agenda);
     }
 
     private boolean opcionSeleccion(Agenda agenda, int opcion) {
         if (opcion > 0 && opcion - 1 < agenda.getCuentas().size()) {
-         agenda.getCuentas().set(opcion-1, modificarDatos(agenda.getCuentas().get(opcion-1)));
-            return true;
-        } else return false;
+            Cuenta cuentaModificada=modificarDatos(agenda.getCuentas().get(opcion-1));
+            if(cuentaModificada!=null){
+                agenda.getCuentas().set(opcion-1,cuentaModificada);
+                return true;
+            }else
+                return false;
+        } else
+            return false;
     }
 
     private Cuenta modificarDatos(Cuenta cuenta) {
@@ -62,20 +66,25 @@ public class ModificarCuenta {
 
         pane.add(new JLabel("Contraseña: "));
         pane.add(passField);
-
+        boolean bandera = false;
+        do {
         int option = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULOMODIFICACUENTA.descripcion, JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
         if (option == JOptionPane.YES_OPTION) {
-            String userInput = userField.getText();
-            String passInput = passField.getText();
-            String tipoCuentaInput = tipoCuentaField.getText();
-            cuenta.setTipoCuenta(tipoCuentaInput);
-            cuenta.setUsuario(userInput);
-            cuenta.setPassword(passInput);
-            return cuenta;
+            if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
+                bandera = true;
+                String userInput = userField.getText();
+                String passInput = passField.getText();
+                String tipoCuentaInput = tipoCuentaField.getText();
+                cuenta.setTipoCuenta(tipoCuentaInput);
+                cuenta.setUsuario(userInput);
+                cuenta.setPassword(passInput);
+                return cuenta;
         } else
-            return null;
-
-
-    }
+            JOptionPane.showMessageDialog(null, "ERROR, Debe ingresar un User/mail y password", TitulosPantallas.TITULONUEVACUENTA.descripcion, JOptionPane.ERROR_MESSAGE);
+            bandera = false;
+        } else
+           return null;
+    } while (!bandera);
+    return null;
+}
 }

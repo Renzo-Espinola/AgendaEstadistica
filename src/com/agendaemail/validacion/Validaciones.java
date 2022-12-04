@@ -13,4 +13,12 @@ public class Validaciones {
     else{return true;
     }
 }
+    public  boolean esUnNumero(String n){
+        try{
+            Integer.parseInt(n);
+            return true;
+        }catch (NumberFormatException nfe){
+            return false;
+        }
+    }
 }

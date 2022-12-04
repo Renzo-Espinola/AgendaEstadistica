@@ -12,7 +12,6 @@ public class AgregarCuenta {
     public void agregarCuentaNueva(Agenda agenda) {
         PantallaPrincipalAgenda pantallaPrincipalAgenda = new PantallaPrincipalAgenda();
         opcionSeleccion(agenda);
-        JOptionPane.showMessageDialog(null, "Se agrego una nueva Cuenta");
         pantallaPrincipalAgenda.pantallaSubMenuMovconsultas(agenda);
     }
 
@@ -43,20 +42,29 @@ public class AgregarCuenta {
 
         pane.add(new JLabel("Contraseña: "));
         pane.add(passField);
+        boolean bandera = false;
+        do {
+            int option = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULONUEVACUENTA.descripcion, JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 
-        int option = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULONUEVACUENTA.descripcion, JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-        if (option == JOptionPane.YES_OPTION) {
-            Cuenta cuenta = new Cuenta();
-            String userInput = userField.getText();
-            String passInput = passField.getText();
-            String tipoCuentaInput = tipoCuentaField.getText();
-            cuenta.setTipoCuenta(tipoCuentaInput);
-            cuenta.setUsuario(userInput);
-            cuenta.setPassword(passInput);
-            return cuenta;
-        } else
-            return null;
-
+            if (option == JOptionPane.YES_OPTION) {
+                if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
+                    bandera = true;
+                    Cuenta cuenta = new Cuenta();
+                    String userInput = userField.getText();
+                    String passInput = passField.getText();
+                    String tipoCuentaInput = tipoCuentaField.getText();
+                    cuenta.setTipoCuenta(tipoCuentaInput);
+                    cuenta.setUsuario(userInput);
+                    cuenta.setPassword(passInput);
+                    JOptionPane.showMessageDialog(null, "Se agrego una nueva Cuenta",TitulosPantallas.TITULOLOGNUEVACUENTA.descripcion,JOptionPane.INFORMATION_MESSAGE);
+                    return cuenta;
+                } else
+                    bandera = false;
+            } else
+                return null;
+            JOptionPane.showMessageDialog(null, "ERROR, Debe ingresar un User/mail y password", TitulosPantallas.TITULONUEVACUENTA.descripcion, JOptionPane.ERROR_MESSAGE);
+        } while (!bandera);
+        return null;
     }
 }
+
