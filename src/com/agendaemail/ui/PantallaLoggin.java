@@ -3,10 +3,13 @@ package com.agendaemail.ui;
 import com.agendaemail.model.Agenda;
 import com.agendaemail.model.TitulosPantallas;
 import com.agendaemail.model.User;
+import com.agendaemail.validacion.Validaciones;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class PantallaLoggin {
+    private Validaciones validaciones = new Validaciones();
     public boolean login(Agenda agenda) {
         JFrame frame;
         JPanel pane;
@@ -29,44 +32,79 @@ public class PantallaLoggin {
         pane.add(passField);
 
         int option = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
         if (option == JOptionPane.YES_OPTION) {
             String userInput = userField.getText();
             String passInput = passField.getText();
-            if ((userInput.toUpperCase().equalsIgnoreCase("Admin") && passInput.equalsIgnoreCase("1234"))||
-                    (userInput.toUpperCase().equalsIgnoreCase(agenda.getUser().getUsuario())&&
-                            passInput.toUpperCase().equalsIgnoreCase(agenda.getUser().getContraseña()))) {
-                JOptionPane.showMessageDialog(null, "BIENVENIDO "+agenda.getPersona().getNombre()+","+agenda.getPersona().getApellido(),TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.INFORMATION_MESSAGE);
-                return true;
-            } else {
-                String opcion = JOptionPane.showInputDialog(null,
-                        new StringBuilder().append("Desea crear su usuario y contraseña (Si-Para continuar/No-Para Salir)?     \n")
-                                .toString(), TitulosPantallas.TITULOERROR.descripcion,3);
-                if (opcion.toUpperCase().equalsIgnoreCase("SI")) {
-                    pane.add(new JLabel("Re-Ingrese su contraseña"));
-                    pane.add(passValidacionField);
-                    String passValidacionInput=null;
+            if (!userInput.isEmpty() && !passInput.isEmpty()) {
+                if ((userInput.toUpperCase().equalsIgnoreCase("Admin") && passInput.equalsIgnoreCase("1234")) ||
+                        (userInput.toUpperCase().equalsIgnoreCase(agenda.getUser().getUsuario()) &&
+                                passInput.toUpperCase().equalsIgnoreCase(agenda.getUser().getContraseña()))) {
+                    JOptionPane.showMessageDialog(null, "BIENVENIDO " + (agenda.getPersona() != null ?
+                                    agenda.getPersona().getNombre() : agenda.getUser() != null ? agenda.getUser().getUsuario() : "Invitado"),
+                            TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                } else {
+                    //En caso de suministrar datos erroneos (user y pass) se accede a la siguiente
+                    //pantalla donde pregunta al usuario si desea crear su usuario y contraseña
+                    String opcion;
+                    boolean bandera;
+                    //Se crea un bucle de evaluacion de ingreso de opcion
                     do {
-                        userField.setText("");
-                        passField.setText("");
-                        passValidacionField.setText("");
-                        int option2 = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULOLOGNUEVACUENTAAGENDA.descripcion,JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                        if (option2 == JOptionPane.YES_OPTION) {
-                            String userInput2 = userField.getText();
-                            String passInput2 = passField.getText();
-                            passValidacionInput = passValidacionField.getText();
-                            if (passInput2.toUpperCase().trim().equalsIgnoreCase(passValidacionInput.toUpperCase().trim())) {
-                                agenda.setUser(new User(userInput2, passInput2));
-                                JOptionPane.showMessageDialog(null, "Debe volver al loggin principal ",TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.INFORMATION_MESSAGE);
+                        opcion = JOptionPane.showInputDialog(null,
+                                new StringBuilder().append("USUARIO Y CONTRASEÑA NO ENCONTRADO\n")
+                                        .append("\n")
+                                        .append("DESEA CREAR SU CUENTA?\n")
+                                        .append("\n")
+                                        .append("1<--------SI          \n")
+                                        .append("0<--------VOLVER\n")
+                                        .toString(), TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.QUESTION_MESSAGE);
+                        bandera=validaciones.esUnNumero(opcion) && (opcion.equalsIgnoreCase("0") || opcion.equalsIgnoreCase("1"));
+                        if(!bandera)
+                            JOptionPane.showMessageDialog(null, "INGRESO ERRONEO",TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.ERROR_MESSAGE);
+                    }while(!bandera);
+                    if(opcion!=null) {
+                        String passValidacionInput = "";
+                        passInput="";
+                        //Se crea un bucle de evaluacion de ingreso de informacion usuario contraseña y re ingreso de contraseña
+                        do {
+                            if (opcion.equalsIgnoreCase("1")) {
+                                pane.add(new JLabel("Re-Ingrese su contraseña"));
+                                pane.add(passValidacionField);
+                                userField.setText("");
+                                passField.setText("");
+                                passValidacionField.setText("");
+                                int option2 = JOptionPane.showConfirmDialog(frame, pane, TitulosPantallas.TITULOLOGNUEVACUENTA.descripcion, JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                                if (option2 == JOptionPane.YES_OPTION) {
+                                    String userInput2 = userField.getText();
+                                    String passInput2 = passField.getText();
+                                    passValidacionInput = passValidacionField.getText();
+                                    if (!userInput2.isEmpty() && !passInput2.isEmpty() && !passValidacionInput.isEmpty()) {
+                                        if (passInput2.toUpperCase().trim().equalsIgnoreCase(passValidacionInput.toUpperCase().trim())) {
+                                            agenda.setUser(new User(userInput2, passInput2));
+                                            JOptionPane.showMessageDialog(null, "DEBE VOLVER A LOGEARSE", TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.INFORMATION_MESSAGE);
+                                            return false;
+                                        } else {
+                                            JOptionPane.showMessageDialog(null, "CONTRASEÑAS DISTINTAS", TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.ERROR_MESSAGE);
+                                        }
+                                    } else
+                                        JOptionPane.showMessageDialog(null, "DEBE COMPLETAR TODOS LOS CAMPOS", TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.ERROR_MESSAGE);
+                                } else
+                                    return false;
+                            }else if(opcion.equalsIgnoreCase("0")){
                                 return false;
-                            }else {
-                                JOptionPane.showMessageDialog(null, "CONTRASEÑAS DISTINTAS");
+                            }else{
+                                JOptionPane.showMessageDialog(null, "INGRESO ERRONEO", TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.ERROR_MESSAGE);
                             }
-                        }else return false;
-                    }while(!passInput.equalsIgnoreCase(passValidacionInput));
-                } else return false;
-            }
-        }else return false;
+                        } while (!passInput.trim().equalsIgnoreCase(passValidacionInput.trim()));
+                    }
+                    return false;
+                }
+            }else
+                JOptionPane.showMessageDialog(null, "DEBE COMPLETAR TODOS LOS CAMPOS",TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(null, "ADIOS GRACIAS POR USAR NUESTROS SERVICIOS", TitulosPantallas.TITULOLOGIN.descripcion, JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+        }
         return false;
     }
 }
